@@ -191,3 +191,21 @@ example = FIDOAttestationParser(StringIO(a), len(a))
 #example.parse() Loops forever
 #print 'chunker'
 #print '\t', example.chunks
+
+
+import binio
+FIDOAttestation = binio.new("""
+    1:      uint16:  tag    # Comments also work
+    1:      uint8:   flags
+    1:      uint32:  sign_count
+    1:      uint16:  pubkey_encoding
+    1:      uint16:  pubkey_len
+    pubkey_len: byte: pubkey
+    1:      uint16:  key_handle_len
+    key_handle_len: byte: key_handle
+    1:      uint16:  client_data_hash_len
+    client_data_hash_len: byte: client_data_hash
+""")
+print 'binio'
+print '\t', FIDOAttestation.read_dict(StringIO(a), binio.BYTE_ORDER_BIG_ENDIAN)
+print '\t', FIDOAttestation.read_struct(StringIO(a), binio.BYTE_ORDER_BIG_ENDIAN)
