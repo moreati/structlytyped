@@ -4,5 +4,6 @@ construct
 cstruct
 destruct
 EStruct
+infi.instruct
 netstruct
 vstruct

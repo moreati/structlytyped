@@ -26,6 +26,7 @@ class Example(binstruct.StructTemplate):
     status =    binstruct.UInt16Field(0)
     greeting =  binstruct.StringField(2, 10)
 
+
 example = Example(bytearray(s), start_offset=0)
 print 'binstruct'
 print '\t', example
@@ -82,6 +83,7 @@ print '\t', result
 print '\t', result.status, repr(result.greeting)
 
 # Based on http://www.w3.org/Submission/2015/SUBM-fido-key-attestation-20151120/#attestation-rawdata-type-packed
+# This is only a partial description - extension fields are not included
 # TODO Can estruct return byte strings instead of a list of chars?
 FIDOAttestation = estruct.EStruct(
     'FIDOAttestation',
@@ -107,3 +109,36 @@ result = netstruct.unpack('H B L H H$ H$ H$',
                           b'\x00\x0eclientdatahash')
 print 'netstruct'
 print '\t', result
+
+
+from infi.instruct.buffer import (
+    Buffer, be_uint_field, bytearray_field,
+    after_ref, bytes_ref, len_ref, num_ref, self_ref,
+)
+class FIDOAttestation(Buffer):
+    tag                 = be_uint_field(where=bytes_ref[0:2])
+    flags               = be_uint_field(where=bytes_ref[2:3])
+    sign_count          = be_uint_field(where=bytes_ref[3:7])
+    pubkey_encoding     = be_uint_field(where=bytes_ref[7:9])
+
+    pubkey_len          = be_uint_field(where=bytes_ref[9:11],
+                                        set_before_pack=len_ref(self_ref.pubkey))
+    pubkey              = bytearray_field(where=bytes_ref[after_ref(pubkey_len):after_ref(pubkey_len)+num_ref(pubkey_len)])
+
+    key_handle_len      = be_uint_field(where=bytes_ref[after_ref(pubkey):after_ref(pubkey)+2],
+                                        set_before_pack=len_ref(self_ref.key_handle))
+    key_handle          = bytearray_field(where=bytes_ref[after_ref(key_handle_len):after_ref(key_handle_len)+num_ref(key_handle_len)])
+
+    client_data_hash_len= be_uint_field(where=bytes_ref[after_ref(key_handle):after_ref(key_handle)+2],
+                                        set_before_pack=len_ref(self_ref.client_data_hash))
+    client_data_hash    = bytearray_field(where=bytes_ref[after_ref(client_data_hash_len):after_ref(client_data_hash_len)+num_ref(client_data_hash_len)])
+
+
+example = FIDOAttestation()
+print 'infi.instruct'
+print '\t', example
+print '\t', example.unpack(b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
+                           b'\x00\x06pubkey'
+                           b'\x00\x09keyhandle'
+                           b'\x00\x0eclientdatahash')
+print '\t', example
