@@ -1,3 +1,5 @@
+from cStringIO import StringIO
+
 s = b'\x00\xffHello\x00\x00\x00\x00\x00'
 a = (
     b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
@@ -159,3 +161,33 @@ example = FIDOAttestation()
 example.unpack(a)
 print 'suitcase'
 print '\t', example
+
+
+from chunker.chunks import Chunk
+from chunker.fields import (
+    UnsignedCharField, UnsignedShortField, UnsignedLongField, StringField,
+)
+from chunker.parsers import Parser
+class FIDOAttestationChunk(Chunk):
+    Fields = (
+        UnsignedShortField  ('tag', big_endian=True),
+        UnsignedCharField   ('flags', big_endian=True),
+        UnsignedLongField   ('sign_count', big_endian=True),
+        UnsignedShortField  ('pubkey_encoding', big_endian=True),
+        UnsignedShortField  ('pubkey_len', big_endian=True),
+        StringField         ('pubkey', length_field_name='pubkey_len'),
+        UnsignedShortField  ('key_handle_len', big_endian=True),
+        StringField         ('key_handle',
+                             length_field_name='key_handle_len'),
+        UnsignedShortField  ('client_data_hash_len', big_endian=True),
+        StringField         ('client_data_hash',
+                             length_field_name='client_data_hash_len'),
+    )
+class FIDOAttestationParser(Parser):
+    ChunkClasses = (
+        FIDOAttestationChunk,
+    )
+example = FIDOAttestationParser(StringIO(a), len(a))
+#example.parse() Loops forever
+#print 'chunker'
+#print '\t', example.chunks
