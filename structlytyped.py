@@ -1,4 +1,10 @@
 s = b'\x00\xffHello\x00\x00\x00\x00\x00'
+a = (
+    b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
+    b'\x00\x06pubkey'
+    b'\x00\x09keyhandle'
+    b'\x00\x0eclientdatahash'
+)
 
 import struct
 status, greeting = struct.unpack('> H 10s', s)
@@ -94,19 +100,12 @@ FIDOAttestation = estruct.EStruct(
        ''',
     '>HBLHH{pubkey_len}[s]H{key_handle_len}[c]H{client_data_hash_len}[c]',
 )
-result = FIDOAttestation.unpack(b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
-                                b'\x00\x06pubkey'
-                                b'\x00\x09keyhandle'
-                                b'\x00\x0eclientdatahash')
+result = FIDOAttestation.unpack(a)
 print '\t', type(result), hex(result[0]), result.pubkey
 
 
 import netstruct # Apache, big-endian by default
-result = netstruct.unpack('H B L H H$ H$ H$',
-                          b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
-                          b'\x00\x06pubkey'
-                          b'\x00\x09keyhandle'
-                          b'\x00\x0eclientdatahash')
+result = netstruct.unpack('H B L H H$ H$ H$', a)
 print 'netstruct'
 print '\t', result
 
@@ -137,8 +136,5 @@ class FIDOAttestation(Buffer):
 example = FIDOAttestation()
 print 'infi.instruct'
 print '\t', example
-print '\t', example.unpack(b'\xF1\xD0\x00\x00\x00\x00\x23\x01\x00'
-                           b'\x00\x06pubkey'
-                           b'\x00\x09keyhandle'
-                           b'\x00\x0eclientdatahash')
+print '\t', example.unpack(a)
 print '\t', example
