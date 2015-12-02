@@ -1,0 +1,8 @@
+binstruct
+bitstruct
+construct
+cstruct
+destruct
+EStruct
+netstruct
+vstruct
