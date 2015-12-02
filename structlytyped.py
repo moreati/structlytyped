@@ -138,3 +138,24 @@ print 'infi.instruct'
 print '\t', example
 print '\t', example.unpack(a)
 print '\t', example
+
+
+# MPL
+from suitcase.fields import UBInt8, UBInt16, UBInt32, LengthField, Payload
+from suitcase.structure import Structure
+
+class FIDOAttestation(Structure):
+    tag                 = UBInt16()
+    flags               = UBInt8()
+    sign_count          = UBInt32()
+    pubkey_encoding     = UBInt16()
+    pubkey_len          = LengthField(UBInt16())
+    pubkey              = Payload(pubkey_len)
+    key_handle_len      = LengthField(UBInt16())
+    key_handle          = Payload(key_handle_len)
+    client_data_hash_len= LengthField(UBInt16())
+    client_data_hash    = Payload(client_data_hash_len)
+example = FIDOAttestation()
+example.unpack(a)
+print 'suitcase'
+print '\t', example

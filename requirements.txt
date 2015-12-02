@@ -6,4 +6,5 @@ destruct
 EStruct
 infi.instruct
 netstruct
+suitcase
 vstruct
