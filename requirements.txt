@@ -3,6 +3,7 @@ binstruct
 bitstruct
 # bytebuilder last release in 2011, repository is 404
 chunker
+# dumpy Python 3.x only
 construct
 cstruct
 destruct
